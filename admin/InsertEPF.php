@@ -77,7 +77,7 @@ if (isset($_POST['submit'])) {
     </style>
 </head>
 
-<body onload="eee()">
+<body >
     <div class="topbar">
         <h1 class="topbar-text">Welcome <?php echo $_SESSION['username'] ?></h1>
 

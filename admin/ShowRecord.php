@@ -265,7 +265,7 @@ if (isset($_POST['delete'])) {
                 <!-- <button type="submit" class="btn btn-warning mt-3" name="delete"
             onclick="return confirm('Are you sure?')">Transfer</button> -->
                
-       <button type="submit" class="btn btn-success mt-3 mx-2"><a href="..\admin\indexAdmin.php" style="text-decoration:none;color:black">Edit Record</button>
+       <?php echo "<button type='submit' class='btn btn-success mt-3 mx-2'><a href='..\admin\EditRecord.php?updateid=$id' style='text-decoration:none;color:black'>Edit Record</button>";?>
        <button type="submit" onclick="return confirm('Are you sure?')" class="btn btn-warning mt-3 mx-2" name="delete">Delete Record</button>
        <button type="button" class="btn btn-info mt-3 mx-2"><a href="..\admin\BrowseEPFNo.php" style="text-decoration:none;color:black">Back to Search</a></button>
         <button type="back" class="btn btn-danger mt-3 mx-2" name="back"><a href="..\admin\indexAdmin.php" style="text-decoration:none;color:white">Back to Main</a></button>
