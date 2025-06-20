@@ -9,6 +9,7 @@ if (!($_SESSION['type'] == 'admin')) {
 }
 
 if (isset($_POST['submit'])) {
+    //$member_id= $_POST['id'];
     $fname = $_POST['fname'];
     $lname = $_POST['lname'];
     $namewinitials = $_POST['namewinitials'];
@@ -17,36 +18,30 @@ if (isset($_POST['submit'])) {
     $raddress = $_POST['raddress'];
     $nic = $_POST['nic'];
     $dob = $_POST['dob'];
-    $mobile=$_POST['mobile'];
-    $applicant1 = $_POST['applicant1'];
-    $relation1 = $_POST['relation1'];
-    $applicant2 = $_POST['applicant2'];
-    $relation2 = $_POST['relation2'];
-    $applicant3 = $_POST['applicant3'];
-    $relation3 = $_POST['relation3'];
-    $applicant4 = $_POST['applicant4'];
-    $relation4 = $_POST['relation4'];
-    $applicant5 = $_POST['applicant5'];
-    $relation5 = $_POST['relation5'];
-    $applicant6 = $_POST['applicant6'];
-    $relation6 = $_POST['relation6'];
-    $applicant7 = $_POST['applicant7'];
-    $relation7 = $_POST['relation7'];
-    $applicant8 = $_POST['applicant8'];
-    $relation8 = $_POST['relation8'];
-    $applicant9 = $_POST['applicant9'];
-    $relation9 = $_POST['relation9'];
-    $applicant10 = $_POST['applicant10'];
-    $relation10 = $_POST['relation10'];
-
-
+    $marital=$_POST['marital'];
+    $mobile = $_POST['mobile'];
 
     // Intert Data
-    $sql = "insert into `member_info` (fname,lname,namewinitials,epfno,dept,raddress,nic,dob,mobile,applicant1,relation1,applicant2,relation2,applicant3,relation3,applicant4,relation4,applicant5,relation5,applicant6,relation6,applicant7,relation7,applicant8,relation8,applicant9,relation9,applicant10,relation10) values ('$fname','$lname','$namewinitials','$epfno','$dept','$raddress','$nic','$dob','$mobile','$applicant1','$relation1','$applicant2','$relation2','$applicant3','$relation3','$applicant4','$relation4','$applicant5','$relation5','$applicant6','$relation6','$applicant7','$relation7','$applicant8','$relation8','$applicant9','$relation9','$applicant10','$relation10')";
-
-
-
+    $sql = "insert into `member_info` (fname,lname,namewinitials,epfno,dept,raddress,nic,dob,marital,mobile) values ('$fname','$lname','$namewinitials','$epfno','$dept','$raddress','$nic','$dob','$marital','$mobile')";
     $result = mysqli_query($con, $sql);
+
+    $member_id = $con->insert_id;
+
+    $applicant_names = $_POST['applicant_name'];
+    $relations = $_POST['relation'];
+
+    $insert_applicant = $con->prepare("INSERT INTO applicants (member_id, applicant_name, relation) VALUES (?, ?, ?)");
+
+    for ($i = 0; $i < count($applicant_names); $i++) {
+        $name = $applicant_names[$i];
+        $relation = $relations[$i];
+
+        if (!empty($name) && !empty($relation)) {
+            $insert_applicant->bind_param("iss", $member_id, $name, $relation);
+            $insert_applicant->execute();
+        }
+    }
+
     if ($result) {
         header('location:InsertSuccess.php');
     } else {
@@ -77,7 +72,7 @@ if (isset($_POST['submit'])) {
     </style>
 </head>
 
-<body >
+<body>
     <div class="topbar">
         <h1 class="topbar-text">Welcome <?php echo $_SESSION['username'] ?></h1>
 
@@ -117,7 +112,7 @@ if (isset($_POST['submit'])) {
                                 <label for="exampleInputEmail1">Name with Initials</label>
                             </td>
                             <td class="px-3">
-                                <input type="text" class="form-control" name="namewinitials" id="exampleInputEmail1" placeholder="Name with Initials">
+                                <input type="text" class="form-control" name="namewinitials" id="exampleInputEmail1" placeholder="Name with Initials" oninput="document.getElementById('input2').value = this.value;">
                             </td>
                         </tr>
                         <!-- Row of input fields -->
@@ -137,7 +132,6 @@ if (isset($_POST['submit'])) {
                             <td class="px-3">
                                 <select id="Departments" class="form-control" name="dept">
                                     <option value="ACF">ACF</option>
-
                                     <option value="CCF">CCF</option>
                                     <option value="DRF">DRF</option>
                                     <option value="FCF">FCF</option>
@@ -189,6 +183,18 @@ if (isset($_POST['submit'])) {
                         <!-- Row of input fields -->
                         <tr>
                             <td class="py-3">
+                                <label for="marital status">marital status</label>
+                            </td>
+                            <td class="px-3" style="width: 500px;">
+                                <select id="MaritalStatus" name="marital" class="form-control px-2 w-100" onchange="updateApplicantsByMaritalStatus()">
+                                    <option value="Married">Married</option>
+                                    <option value="Single">Single</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <!-- Row of input fields -->
+                        <tr>
+                            <td class="py-3">
                                 <label for="Mobile Phone">Mobile Phone</label>
                             </td>
                             <td class="px-3" style="width: 500px;">
@@ -198,210 +204,132 @@ if (isset($_POST['submit'])) {
                         <!-- Row of input fields -->
                         <tr>
                             <td class="py-3">
-                                <label for="Mobile Phone">Death grant Applicants<br> according to Welfare<br> constitution</label>
+                                <label for="Applicants">Applicants </label>
                             </td>
                             <td class="px-3" style="width: 500px;">
-                                <table>
-                                    <th>
-                                        Name
-                                    </th>
-                                    <th>
-                                        Relation
-                                    </th>
-                                    <!-- <tr>
-                                        <td>
-                                            <label for="Name of Applicant">Name of Applicant</label>
-                                        </td>
-                                        <td>
-                                            <label for="Relation to Member">Relation to Member</label>
-                                        </td>
-                                    </tr> -->
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant1" name="applicant1" placeholder="Name of the Applicant 1">
-                                        </td>
-                                        <td>
-                                                                                        <select id="Relation1" class="form-control" name="relation1">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                 <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                              </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant2" name="applicant2" placeholder="Name of the Applicant 2">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation2">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                 <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                              </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant3" name="applicant3" placeholder="Name of the Applicant 3">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation3">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                 <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                              </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant4" name="applicant4" placeholder="Name of the Applicant 4">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation4">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                 <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                              </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant5" name="applicant5" placeholder="Name of the Applicant 5">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation5">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                 <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                              </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant6" name="applicant6" placeholder="Name of the Applicant 6">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation6">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                 <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                              </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant7" name="applicant7" placeholder="Name of the Applicant 7">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation7">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                 <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                              </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant8" name="applicant8" placeholder="Name of the Applicant 8">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation8">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                 <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                              </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant9" name="applicant9" placeholder="Name of the Applicant 9">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation9" >
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                 <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                              </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant10" name="applicant10" placeholder="Name of the Applicant 10">
-                                        </td>
-                                        <td>
-                                            <select id="Relation10" class="form-control" name="relation10">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                 <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                              </select>
-                                        </td>
-                                    </tr>
 
+                                <table id="applicantTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Name:</th>
+                                            <th>Relation:</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="applicants">
+                                        <tr>
+                                            <td><input class="form-control" type="text" name="applicant_name[]" id="input2" readonly></td>
+                                            <td><select id="cars" name="relation[]" class="form-control">
+                                                    <option value="Self">Self</option>
+
+                                                </select></td>
+                                        </tr>
+                                    </tbody>
                                 </table>
+                                <button class="form-control bg-info w-50" type="button" onclick="addApplicant()">Add More Applicant</button>
 
-                            </td>
-                        </tr>
-                        <!-- <tr>
+                                <script>
+                                    function updateApplicantsByMaritalStatus() {
+                                        let applicants = document.getElementById('applicants');
+
+                                        // Keep only the first row (Self), delete others
+                                        while (applicants.rows.length > 1) {
+                                            applicants.deleteRow(1);
+                                        }
+                                    }
+
+                                    function generateRelationDropdown(maritalStatus) {
+                                        if (maritalStatus === "Married") {
+                                            return `
+            <option value="Wife">Wife</option>
+            <option value="Son">Son</option>
+            <option value="Daughter">Daughter</option>
+            <option value="Mother">Mother</option>
+            <option value="Father">Father</option>
+            <option value="Mother-in-law">Mother-in-law</option>
+            <option value="Father-in-law">Father-in-law</option>
+        `;
+                                        } else {
+                                            return `
+            <option value="Mother">Mother</option>
+            <option value="Father">Father</option>
+            <option value="Sister">Sister</option>
+            <option value="Brother">Brother</option>
+        `;
+                                        }
+                                    }
+
+                                    function addApplicant() {
+                                        let container = document.getElementById('applicants');
+                                        let marital = document.getElementById('MaritalStatus').value;
+                                        let newRow = document.createElement('tr');
+
+                                        newRow.innerHTML = `
+        <td><input type="text" class="form-control" name="applicant_name[]"></td>
+        <td>
+            <select name="relation[]" class="form-control">
+                ${generateRelationDropdown(marital)}
+            </select>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">Delete</button>
+        </td>
+    `;
+
+                                        container.appendChild(newRow);
+                                    }
+
+                                    function deleteRow(button) {
+                                        let row = button.closest('tr');
+                                        row.remove();
+                                    }
+                                </script>
+
+                                <script>
+                                    document.querySelector('form').addEventListener('submit', function(e) {
+                                        const names = document.querySelectorAll('input[name="applicant_name[]"]');
+                                        const relations = document.querySelectorAll('select[name="relation[]"]');
+
+                                        let relationCount = {};
+                                        const allowed = {
+
+                                            "Wife": 1,
+                                            "Father": 1,
+                                            "Mother": 1,
+                                            "Father-in-law": 1,
+                                            "Mother-in-law": 1,
+                                            "Son": Infinity,
+                                            "Daughter": Infinity,
+                                            "Brother": Infinity,
+                                            "Sister": Infinity
+                                        };
+
+                                        let errors = [];
+
+                                        for (let i = 0; i < names.length; i++) {
+                                            const name = names[i].value.trim();
+                                            const relation = relations[i].value;
+
+                                            // Check empty name
+                                            if (name === '') {
+                                                errors.push(`Applicant name cannot be empty in row ${i + 1}`);
+                                            }
+
+                                            // Count relation
+                                            relationCount[relation] = (relationCount[relation] || 0) + 1;
+
+                                            // Enforce limit
+                                            if (relationCount[relation] > allowed[relation]) {
+                                                errors.push(`Only ${allowed[relation]} '${relation}' allowed.`);
+                                            }
+                                        }
+
+                                        if (errors.length > 0) {
+                                            e.preventDefault(); // stop form from submitting
+                                            alert(errors.join('\n'));
+                                        }
+                                    });
+                                </script>
+                                <!-- <tr>
                             <td class="py-3">
                                  <label for="Mobile Phone">Mobile Phone</label>
                             </td>
