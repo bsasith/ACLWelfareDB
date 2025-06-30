@@ -66,9 +66,10 @@ if (!($_SESSION['type'] == 'admin')) {
                         <th scope="col">Address</th>
                         <th scope="col">NIC</th>
                         <th scope="col">DOB</th>
+                        <th scope="col">Marital<br>Status</th>
                         <th scope="col">Mobile</th>
                         <!-- <th scope="col">Operations</th> -->
-                        
+
 
                     </tr>
                 </thead>
@@ -78,7 +79,7 @@ if (!($_SESSION['type'] == 'admin')) {
                     if (isset($_POST['search'])) {
 
                         $query = $_POST['query'];
-                    
+
                         $sql = "SELECT * FROM `member_info` 
                 WHERE (fname LIKE '%$query%' 
                 OR lname LIKE '%$query%' 
@@ -89,10 +90,10 @@ if (!($_SESSION['type'] == 'admin')) {
                 OR  mobile LIKE '%$query%') 
                 ORDER BY epfno DESC LIMIT 10
                 ";
-                    
 
 
-                    /*
+
+                        /*
                         $result = mysqli_query($con, $sql);
                         $num = mysqli_num_rows($result);
                         $numberPerPages = 3;
@@ -116,21 +117,22 @@ if (!($_SESSION['type'] == 'admin')) {
                             $sql3 = "Select * from `jobdatasheet` where (BDescription like '%$query%' or MachineName like '%$query%' or JobCodeNo like '%$query%' or JobPostingDev like '%$query%' or ReportTo like '%$query%') and  JobStatusM='Finished' and Certification='Certified' and (ReportTo='$workplace' or ReportTo='Both') limit $startinglimit,$numberPerPages";
                         }
                             */
-                    $result = mysqli_query($con, $sql);
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        $id = $row['id'];
-                        $fname = $row['fname'];
-                        $lname = $row['lname'];
-                        $namewinitials = $row['namewinitials'];
-                        $epfno = $row['epfno'];
-                        $dept = $row['dept'];
-                        $raddress = $row['raddress'];
-                        $nic = $row['nic'];
-                        $dob = $row['dob'];
-                    $mobile = $row['mobile'];
+                        $result = mysqli_query($con, $sql);
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $id = $row['id'];
+                            $fname = $row['fname'];
+                            $lname = $row['lname'];
+                            $namewinitials = $row['namewinitials'];
+                            $epfno = $row['epfno'];
+                            $dept = $row['dept'];
+                            $raddress = $row['raddress'];
+                            $nic = $row['nic'];
+                            $dob = $row['dob'];
+                            $marital = $row['marital'];
+                            $mobile = $row['mobile'];
 
-                    echo
-                    "
+                            echo
+                            "
 
 
      <tr class='clickable-row' data-href='..\admin\ShowRecord.php?updateid=$id'>
@@ -142,11 +144,14 @@ if (!($_SESSION['type'] == 'admin')) {
         <td>$raddress</td>
         <td>$nic</td>
         <td>$dob</td>
+        <td>$marital<td>
              <td>$mobile</td>   
         
       </tr>
       
-      ";}}
+      ";
+                        }
+                    }
 
 
                     ?>

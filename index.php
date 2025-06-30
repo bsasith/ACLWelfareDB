@@ -1,58 +1,71 @@
 <?php
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+    ini_set('session.cookie_secure', 1);
+}
+session_start();
+
 include 'connect.php';
 
-session_start();
-// this Statement is for closed tab and if opened from new tab with same url
-/*
 if (isset($_SESSION['userID'])) {
-
-    if ($_SESSION['type'] == 'admin') {
-        header('location:.\admin\indexAdminUser.php');
+    switch ($_SESSION['type']) {
+        case 'admin':
+            header('Location: ./admin/indexAdmin.php');
+            exit();
+        case 'user':
+            header('Location: ./PUser/indexPUser.php');
+            exit();
+        case 'euser':
+        case 'muser':
+            header('Location: ./EMUser/indexEMUser.php');
+            exit();
     }
-    if ($_SESSION['type'] == 'puser') {
-        header('location:.\PUser\indexPUser.php');
-    }
-    if ($_SESSION['type'] == 'euser' or $_SESSION['type'] == 'muser') {
-        header('location:.\EMUser\indexEMUser.php');
-    }
-  
-}*/
+}
 
-
-if (isset($_POST['login'])) {
-
-    $user = $_POST['username'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
+    $user = trim($_POST['username']);
     $pass = $_POST['password'];
 
+    $stmt = $con->prepare("SELECT id, username, password, type FROM users WHERE username = ?");
+    $stmt->bind_param("s", $user);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    $sql = "SELECT * FROM users where username = '$user' and password = '$pass'";
+    if ($result->num_rows === 1) {
+        $row = $result->fetch_assoc();
 
-    $result = $con->query($sql);
-
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $_SESSION['LOOGEDIN']= true;
+        // ⚠ Plain password comparison — NOT SAFE
+        if ($pass === $row['password']) {
+            session_regenerate_id(true);
+            $_SESSION['LOGGEDIN'] = true;
             $_SESSION['userID'] = $row['id'];
             $_SESSION['username'] = $row['username'];
             $_SESSION['type'] = $row['type'];
-           
 
-            if ($_SESSION['type'] == 'admin') {
-                header('location:.\admin\indexAdmin.php');
+            switch ($row['type']) {
+                case 'admin':
+                    header('Location: ./admin/indexAdmin.php');
+                    break;
+                case 'user':
+                    header('Location: ./PUser/indexPUser.php');
+                    break;
+                case 'euser':
+                case 'muser':
+                    header('Location: ./EMUser/indexEMUser.php');
+                    break;
             }
-            if ($_SESSION['type'] == 'user') {
-                header('location:.\PUser\indexPUser.php');
-            }
-                      
+            exit();
         }
-    
-    } else {
-        echo "<center><p style=color:red;>Invalid username or password</p></center>";
-
     }
-    $con->close();
+
+    $error = "Invalid username or password.";
+    $stmt->close();
 }
+$con->close();
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 

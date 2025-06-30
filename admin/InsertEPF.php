@@ -18,11 +18,13 @@ if (isset($_POST['submit'])) {
     $raddress = $_POST['raddress'];
     $nic = $_POST['nic'];
     $dob = $_POST['dob'];
-    $marital=$_POST['marital'];
+    $marital = $_POST['marital'];
+    $rd = $_POST['rd'];
+    $dop = $_POST['dop'];
     $mobile = $_POST['mobile'];
 
     // Intert Data
-    $sql = "insert into `member_info` (fname,lname,namewinitials,epfno,dept,raddress,nic,dob,marital,mobile) values ('$fname','$lname','$namewinitials','$epfno','$dept','$raddress','$nic','$dob','$marital','$mobile')";
+    $sql = "insert into `member_info` (fname,lname,namewinitials,epfno,dept,raddress,nic,dob,marital,rd,dop,mobile) values ('$fname','$lname','$namewinitials','$epfno','$dept','$raddress','$nic','$dob','$marital','$rd','$dop','$mobile')";
     $result = mysqli_query($con, $sql);
 
     $member_id = $con->insert_id;
@@ -85,7 +87,7 @@ if (isset($_POST['submit'])) {
     <div class="container mt-5 ">
         <h1>Insert EPF Entry</h1>
         <div class="mt-3">
-            <form method="POST">
+            <form id="employeeForm" method="POST">
                 <table>
                     <div class="form-group">
                         <!-- Row of input fields -->
@@ -183,22 +185,58 @@ if (isset($_POST['submit'])) {
                         <!-- Row of input fields -->
                         <tr>
                             <td class="py-3">
-                                <label for="marital status">marital status</label>
+                                <label for="marital status">Marital Status</label>
                             </td>
                             <td class="px-3" style="width: 500px;">
                                 <select id="MaritalStatus" name="marital" class="form-control px-2 w-100" onchange="updateApplicantsByMaritalStatus()">
-                                    <option value="Married">Married</option>
                                     <option value="Single">Single</option>
+                                    <option value="Married">Married</option>
+
                                 </select>
                             </td>
                         </tr>
                         <!-- Row of input fields -->
                         <tr>
                             <td class="py-3">
+                                <label for="Recruitment Date">Recruitment Date</label>
+                            </td>
+                            <td class="px-3" style="width: 500px;">
+                                <input type="date" class="form-control px-2 w-100" name="rd" id="Recruitment Date" placeholder="Recruitment Date">
+                            </td>
+                        </tr>
+                        <!-- Row of input fields -->
+                        <tr>
+                            <td class="py-3">
+                                <label for="Date of Permanant">Date of Permanant</label>
+                            </td>
+                            <td class="px-3" style="width: 500px;">
+                                <input type="date" class="form-control px-2 w-100" name="dop" id="Date of Permanant" placeholder="Date of Permanant">
+                            </td>
+                        </tr>
+                        <script>
+                            document.getElementById('employeeForm').addEventListener('submit', function(event) {
+                                const recruitmentDate = document.getElementById('Recruitment Date').value;
+                                const permanentDate = document.getElementById('Date of Permanant').value;
+
+                                if (recruitmentDate && permanentDate) {
+                                    const rd = new Date(recruitmentDate);
+                                    const dop = new Date(permanentDate);
+
+                                    if (rd >= dop) {
+                                        event.preventDefault(); // Stop form from submitting
+                                        alert("Recruitment Date should be earlier than Date of Permanent. Fix it before submitting!"); // You can make this fancier with a modal or inline error
+                                    }
+                                }
+                            });
+                        </script>
+
+                        <!-- Row of input fields -->
+                        <tr>
+                            <td class="py-3">
                                 <label for="Mobile Phone">Mobile Phone</label>
                             </td>
                             <td class="px-3" style="width: 500px;">
-                                <input class="form-control" type="text" id="phone" name="mobile" placeholder="123-4567890" pattern="[0-9]{3}-[0-9]{7}">
+                                <input class="form-control" type="text" id="phone" name="mobile" placeholder="012-3456789" pattern="[0-9]{3}-[0-9]{7}">
                             </td>
                         </tr>
                         <!-- Row of input fields -->
