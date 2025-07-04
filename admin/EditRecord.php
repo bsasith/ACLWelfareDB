@@ -10,7 +10,7 @@ if (!($_SESSION['type'] == 'admin')) {
 $idu = $_GET['updateid'];
 
 $sql = "Select * from member_info where id='$idu'";
-
+echo $idu;
 $result = mysqli_query($con, $sql);
 
 $row = mysqli_fetch_assoc($result);
@@ -24,91 +24,75 @@ $dept = $row['dept'];
 $raddress = $row['raddress'];
 $nic = $row['nic'];
 $dob = $row['dob'];
+$rd = $row['rd'];
+$dop = $row['dop'];
 $mobile = $row['mobile'];
-$applicant1 = $row['applicant1'];
-$relation1 = $row['relation1'];
-$applicant2 = $row['applicant2'];
-$relation2 = $row['relation2'];
-$applicant3 = $row['applicant3'];
-$relation3 = $row['relation3'];
-$applicant4 = $row['applicant4'];
-$relation4 = $row['relation4'];
-$applicant5 = $row['applicant5'];
-$relation5 = $row['relation5'];
-$applicant6 = $row['applicant6'];
-$relation6 = $row['relation6'];
-$applicant7 = $row['applicant7'];
-$relation7 = $row['relation7'];
-$applicant8 = $row['applicant8'];
-$relation8 = $row['relation8'];
-$applicant9 = $row['applicant9'];
-$relation9 = $row['relation9'];
-$applicant10 = $row['applicant10'];
-$relation10 = $row['relation10'];
+$marital = $row['marital'];
 
-// $gen = explode(",",$gender);
-// $lang = explode(",",$datas);
-// $pl = explode(",",$place);
-
-//echo  $BriefDescription;
+$sql2 = "Select * from applicants where member_id=$idu";
+$result2 = mysqli_query($con, $sql2);
+$row2 = mysqli_fetch_assoc($result2);
+$num_rows = mysqli_num_rows($result2);
+echo ($num_rows);
 
 
+if (isset($_POST['submit'])) {
 
-// update operation
-if (isset($_POST['update'])) {
+    $fname = $_POST['fname'];
+    $lname = $_POST['lname'];
+    $namewinitials = $_POST['namewinitials'];
+    $epfno = $_POST['epfno'];
+    $dept = $_POST['dept'];
+    $raddress = $_POST['raddress'];
+    $nic = $_POST['nic'];
+    $dob = $_POST['dob'];
+    $marital = $_POST['marital'];
+    $rd = $_POST['rd'];
+    $dop = $_POST['dop'];
+    $mobile = $_POST['mobile'];
 
-    $JobType = $_POST['JobType'];
-    //$JobCodeNo = $_POST['JobCodeNo'];
-    $JobIssuingDivision = $_POST['JobIssuingDivision'];
-    $MachineName = $_POST['MachineName'];
-    $priority = $_POST['priority'];
-    $ReportTo = $_POST['ReportTo'];
-    $BriefDescription = $_POST['BriefDescription'];
-    $username = $_SESSION['username'];
-    if ($JobType == "JobOrder") {
-        $JobCodeNo = "JO" . (substr($JobCodeNo, 2));
-    }
-    if ($JobType == "WorkOrder") {
-        $JobCodeNo = "WO" . (substr($JobCodeNo, 2));
-    }
-    $_SESSION['UpdateJobSucess'] = true;
-    if ($ReportTo == 'Electrical') {
-        $insert = "update jobdatasheet set JobCodeNo='$JobCodeNo',JobPostingDateTime='$date',JobPostingDev='$JobIssuingDivision',MachineName='$MachineName',Priority='$priority',ReportTo='$ReportTo',BDescription='$BriefDescription',Username='$username',JobStatusE='Pending',JobStatusM='NA' where id='$idu'";
-    } elseif ($ReportTo == 'Mechanical') {
-        $insert = "update jobdatasheet set JobCodeNo='$JobCodeNo',JobPostingDateTime='$date',JobPostingDev='$JobIssuingDivision',MachineName='$MachineName',Priority='$priority',ReportTo='$ReportTo',BDescription='$BriefDescription',Username='$username',JobStatusE='NA',JobStatusM='Pending' where id='$idu'";
-    } else {
-        $insert = "update jobdatasheet set JobCodeNo='$JobCodeNo',JobPostingDateTime='$date',JobPostingDev='$JobIssuingDivision',MachineName='$MachineName',Priority='$priority',ReportTo='$ReportTo',BDescription='$BriefDescription',Username='$username',JobStatusM='Pending',JobStatusE='Pending' where id='$idu'";
-    }
+    $insert = "update member_info set fname='$fname',lname='$lname',namewinitials='$namewinitials',epfno='$epfno',dept='$dept',nic='$nic',raddress='$raddress',dob='$dob',rd='$rd',dop='$dop',mobile='$mobile',marital='$marital' where id='$idu'";
+
 
 
     if ($con->query($insert) == TRUE) {
         //$_SESSION['SubmitJobSucess']=true;
         //echo "Sucessfully updated data";
 
-        header('location:.\UpdateJobSuccess.php');
+        //header('location:.\UpdateJobSuccess.php');
+
     } else {
 
         echo mysqli_error($con);
         //  header('location:location:..\PUser\indexPUser.php');
     }
-    //$insert->close();
+    $member_id = $idu;
+
+    // 🧹 Step 1: Delete all existing applicants except 'Self'
+    $con->query("DELETE FROM applicants WHERE member_id = $member_id AND relation != 'Self'");
+
+    // ✅ Step 2: Get form data
+    $applicant_names = $_POST['applicant_name'];
+    $relations = $_POST['relation'];
+
+    // ➕ Step 3: Insert all applicants from form (excluding 'Self')
+    $insert_applicant = $con->prepare("INSERT INTO applicants (member_id, applicant_name, relation) VALUES (?, ?, ?)");
+
+    for ($i = 0; $i < count($applicant_names); $i++) {
+        $name = trim($applicant_names[$i]);
+        $relation = trim($relations[$i]);
+
+        // ❗ Skip 'Self'
+        if ($relation === 'Self') {
+            continue;
+        }
+
+        if (!empty($name) && !empty($relation)) {
+            $insert_applicant->bind_param("iss", $member_id, $name, $relation);
+            $insert_applicant->execute();
+        }
+    }
 }
-
-
-
-
-// delete operation
-if (isset($_POST['delete'])) {
-
-    $sql = "delete  from `jobdatasheet` where id='$idu'";
-    $result = mysqli_query($con, $sql);
-    $_SESSION['DeleteJobSucess'] = true;
-    header('location:.\DeleteJobSuccess.php');
-}
-
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -133,9 +117,9 @@ if (isset($_POST['delete'])) {
     </style>
 </head>
 
-<body onload="divSelect()">
+<body>
     <div class="topbar">
-        <h1 class="topbar-text">Welcome <?php echo $_SESSION['workplace'] ?> User</h1>
+        <h1 class="topbar-text">Welcome <?php echo $_SESSION['username'] ?> User</h1>
 
         <a href="..\logout.php">
             <h1 class="topbar-logout">Logout &nbsp</h1>
@@ -143,10 +127,11 @@ if (isset($_POST['delete'])) {
         <h1 class="topbar-username"><?php echo $_SESSION['username'] ?>&nbsp</h1>
 
     </div>
+
     <div class="container mt-5 ">
-        <h1> Update or Delete Job </h1>
+        <h1> Edit EPF Entry</h1>
         <div class="mt-3">
-            <form method="POST">
+            <form id="employeeForm" method="POST">
                 <table>
                     <div class="form-group">
                         <!-- Row of input fields -->
@@ -155,7 +140,7 @@ if (isset($_POST['delete'])) {
                                 <label for="exampleInputEmail1">First Name</label>
                             </td>
                             <td class="px-3">
-                                <input type="text" class="form-control" name="fname" id="exampleInputEmail1" placeholder="First Name" value="">
+                                <input type="text" value="<?php echo $fname; ?>" class="form-control" name="fname" id="exampleInputEmail1" placeholder="First Name">
                             </td>
                         </tr>
                         <!-- Row of input fields -->
@@ -164,7 +149,7 @@ if (isset($_POST['delete'])) {
                                 <label for="exampleInputEmail1">Last Name</label>
                             </td>
                             <td class="px-3">
-                                <input type="text" class="form-control" name="lname" id="exampleInputEmail1" placeholder="Last Name">
+                                <input type="text" value="<?php echo $lname; ?>" class="form-control" name="lname" id="exampleInputEmail1" placeholder="Last Name">
                             </td>
                         </tr>
                         <!-- Row of input fields -->
@@ -173,7 +158,7 @@ if (isset($_POST['delete'])) {
                                 <label for="exampleInputEmail1">Name with Initials</label>
                             </td>
                             <td class="px-3">
-                                <input type="text" class="form-control" name="namewinitials" id="exampleInputEmail1" placeholder="Name with Initials">
+                                <input type="text" value="<?php echo $namewinitials; ?>" class="form-control" name="namewinitials" id="exampleInputEmail1" placeholder="Name with Initials" oninput="document.getElementById('input2').value = this.value;">
                             </td>
                         </tr>
                         <!-- Row of input fields -->
@@ -182,7 +167,7 @@ if (isset($_POST['delete'])) {
                                 <label for="exampleInputEmail1">EPF No</label>
                             </td>
                             <td class="px-3">
-                                <input type="text" class="form-control px-2" name="epfno" id="exampleInputEmail1" placeholder="EPF No">
+                                <input type="text" value="<?php echo $epfno; ?>" class="form-control px-2" name="epfno" id="exampleInputEmail1" placeholder="EPF No">
                             </td>
                         </tr>
                         <!-- Row of input fields -->
@@ -191,26 +176,63 @@ if (isset($_POST['delete'])) {
                                 <label for="exampleInputEmail1">Working Department</label>
                             </td>
                             <td class="px-3">
-                                <select id="Departments" class="form-control" name="dept">
-                                    <option value="ACF">ACF</option>
+                                <select id="Departments" class="form-control" name="dept">>
+                                    <option value="ACF" <?php if ($dept = 'ACF') {
+                                                            echo 'selected';
+                                                        } ?>>ACF</option>
+                                    <option value="CCF" <?php if ($dept = 'CCF') {
+                                                            echo 'selected';
+                                                        } ?>>CCF</option>
+                                    <option value="DRF" <?php if ($dept = 'DRF') {
+                                                            echo 'selected';
+                                                        } ?>>DRF</option>
+                                    <option value="FCF" <?php if ($dept = 'FCF') {
+                                                            echo 'selected';
+                                                        } ?>>FCF</option>
+                                    <option value="Electrical" <?php if ($dept = 'Electrical') {
+                                                                    echo 'selected';
+                                                                } ?>>Electrical</option>
+                                    <option value="Maintenance" <?php if ($dept = 'Maintenance') {
+                                                                    echo 'selected';
+                                                                } ?>>Maintenance</option>
+                                    <option value="Rodmill" <?php if ($dept = 'Rodmill') {
+                                                                echo 'selected';
+                                                            } ?>>Rodmill</option>
+                                    <option value="Ceylon Copper" <?php if ($dept = 'Ceylon Copper') {
+                                                                        echo 'selected';
+                                                                    } ?>>Ceylon Copper</option>
+                                    <option value="Accounts and Stores" <?php if ($dept = 'Accounts and Stores') {
+                                                                            echo 'selected';
+                                                                        } ?>>Accounts and Stores</option>
+                                    <option value="GM Office" <?php if ($dept = 'GM Office') {
+                                                                    echo 'selected';
+                                                                } ?>>GM Office</option>
+                                    <option value="IT" <?php if ($dept = 'IT') {
+                                                            echo 'selected';
+                                                        } ?>>IT</option>
+                                    <option value="Die shop" <?php if ($dept = 'Die shop') {
+                                                                    echo 'selected';
+                                                                } ?>>Die shop</option>
+                                    <option value="Civil" <?php if ($dept = 'Civil') {
+                                                                echo 'selected';
+                                                            } ?>>Civil</option>
+                                    <option value="Logistics" <?php if ($dept = 'Logistics') {
+                                                                    echo 'selected';
+                                                                } ?>>Logistics</option>
+                                    <option value="Drum Yard" <?php if ($dept = 'Drum Yard') {
+                                                                    echo 'selected';
+                                                                } ?>>Drum Yard</option>
+                                    <option value="HR" <?php if ($dept = 'HR') {
+                                                            echo 'selected';
+                                                        } ?>>HR</option>
+                                    <option value="TSD" <?php if ($dept = 'TSD') {
+                                                            echo 'selected';
+                                                        } ?>>TSD</option>
+                                    <option value="QAD" <?php if ($dept = 'QAD') {
+                                                            echo 'selected';
+                                                        } ?>>QAD</option>
 
-                                    <option value="CCF">CCF</option>
-                                    <option value="DRF">DRF</option>
-                                    <option value="FCF">FCF</option>
-                                    <option value="Electrical">Electrical</option>
-                                    <option value="Maintenance">Maintenance</option>
-                                    <option value="Rodmill">Rodmill</option>
-                                    <option value="Ceylon Copper">Ceylon Copper</option>
-                                    <option value="Accounts and Stores">Accounts and Stores</option>
-                                    <option value="GM Office">GM Office</option>
-                                    <option value="IT">IT</option>
-                                    <option value="Die shop">Die shop</option>
-                                    <option value="Civil">Civil</option>
-                                    <option value="Logistics">Logistics</option>
-                                    <option value="Drum Yard">Drum Yard</option>
-                                    <option value="HR">HR</option>
-                                    <option value="TSD">TSD</option>
-                                    <option value="QAD">QAD</option>
+
 
                                 </select>
                             </td>
@@ -221,7 +243,7 @@ if (isset($_POST['delete'])) {
                                 <label for="Residence Address">Residence Address</label>
                             </td>
                             <td class="px-3" style="width: 500px;">
-                                <input type="text" class="form-control px-2 w-100" name="raddress" id="exampleInputEmail1" placeholder="Residence Address">
+                                <input type="text" class="form-control px-2 w-100" value="<?php echo $raddress; ?>" name="raddress" id="exampleInputEmail1" placeholder="Residence Address">
                             </td>
                         </tr>
                         <!-- Row of input fields -->
@@ -230,7 +252,7 @@ if (isset($_POST['delete'])) {
                                 <label for="NIC No">NIC No</label>
                             </td>
                             <td class="px-3" style="width: 500px;">
-                                <input type="text" class="form-control px-2 w-100" name="nic" id="NIC No" placeholder="NIC No">
+                                <input type="text" class="form-control px-2 w-100" value="<?php echo $nic; ?>" name="nic" id="NIC No" placeholder="NIC No">
                             </td>
                         </tr>
                         <!-- Row of input fields -->
@@ -239,446 +261,281 @@ if (isset($_POST['delete'])) {
                                 <label for="Date of Birth">Date of Birth</label>
                             </td>
                             <td class="px-3" style="width: 500px;">
-                                <input type="date" class="form-control px-2 w-100" name="dob" id="Date of Birth" placeholder="Date of Birth">
+                                <input type="date" class="form-control px-2 w-100" name="dob" value="<?php echo $dob; ?>" id="Date of Birth" placeholder="Date of Birth">
                             </td>
                         </tr>
+                        <!-- Row of input fields -->
+                        <tr>
+                            <td class="py-3">
+                                <label for="marital status">Marital Status</label>
+                            </td>
+                            <td class="px-3" style="width: 500px;">
+                                <select id="MaritalStatus" name="marital" class="form-control px-2 w-100" onchange="updateApplicantsByMaritalStatus()">
+                                    <option value="Single" value="Single" <?php if ($marital = 'Single') {
+                                                                                echo 'selected';
+                                                                            } ?>>Single</option>
+                                    <option value="Married" <?php if ($marital = 'Married') {
+                                                                echo 'selected';
+                                                            } ?>>Married</option>
+                                    <option value="Divorced" <?php if ($marital = 'Divorced') {
+                                                                    echo 'selected';
+                                                                } ?>>Divorced</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <!-- Row of input fields -->
+                        <tr>
+                            <td class="py-3">
+                                <label for="Recruitment Date">Recruitment Date</label>
+                            </td>
+                            <td class="px-3" style="width: 500px;">
+                                <input type="date" class="form-control px-2 w-100" name="rd" value="<?php echo $rd; ?>" id="Recruitment Date" placeholder="Recruitment Date">
+                            </td>
+                        </tr>
+                        <!-- Row of input fields -->
+                        <tr>
+                            <td class="py-3">
+                                <label for="Date of Permanant">Date of Permanant</label>
+                            </td>
+                            <td class="px-3" style="width: 500px;">
+                                <input type="date" class="form-control px-2 w-100" name="dop" value="<?php echo $dop; ?>" id="Date of Permanant" placeholder="Date of Permanant">
+                            </td>
+                        </tr>
+                        <script>
+                            document.getElementById('employeeForm').addEventListener('submit', function(event) {
+                                const recruitmentDate = document.getElementById('Recruitment Date').value;
+                                const permanentDate = document.getElementById('Date of Permanant').value;
+
+                                if (recruitmentDate && permanentDate) {
+                                    const rd = new Date(recruitmentDate);
+                                    const dop = new Date(permanentDate);
+
+                                    if (rd >= dop) {
+                                        event.preventDefault(); // Stop form from submitting
+                                        alert("Recruitment Date should be earlier than Date of Permanent. Fix it before submitting!"); // You can make this fancier with a modal or inline error
+                                    }
+                                }
+                            });
+                        </script>
+
                         <!-- Row of input fields -->
                         <tr>
                             <td class="py-3">
                                 <label for="Mobile Phone">Mobile Phone</label>
                             </td>
                             <td class="px-3" style="width: 500px;">
-                                <input class="form-control" type="text" id="phone" name="mobile" placeholder="123-4567890" pattern="[0-9]{3}-[0-9]{7}">
+                                <input class="form-control" type="text" id="phone" name="mobile" value="<?php echo $mobile; ?>" placeholder="012-3456789" pattern="[0-9]{3}-[0-9]{7}">
                             </td>
                         </tr>
                         <!-- Row of input fields -->
                         <tr>
                             <td class="py-3">
-                                <label for="Mobile Phone">Death grant Applicants<br> according to Welfare<br> constitution</label>
+                                <label for="Applicants">Applicants </label>
                             </td>
                             <td class="px-3" style="width: 500px;">
-                                <table>
-                                    <th>
-                                        Name
-                                    </th>
-                                    <th>
-                                        Relation
-                                    </th>
-                                    <!-- <tr>
-                                        <td>
-                                            <label for="Name of Applicant">Name of Applicant</label>
-                                        </td>
-                                        <td>
-                                            <label for="Relation to Member">Relation to Member</label>
-                                        </td>
-                                    </tr> -->
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant1" name="applicant1" placeholder="Name of the Applicant 1">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation1">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant2" name="applicant2" placeholder="Name of the Applicant 2">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation2">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant3" name="applicant3" placeholder="Name of the Applicant 3">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation3">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant4" name="applicant4" placeholder="Name of the Applicant 4">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation4">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant5" name="applicant5" placeholder="Name of the Applicant 5">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation5">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant6" name="applicant6" placeholder="Name of the Applicant 6">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation6">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant7" name="applicant7" placeholder="Name of the Applicant 7">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation7">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant8" name="applicant8" placeholder="Name of the Applicant 8">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation8">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant9" name="applicant9" placeholder="Name of the Applicant 9">
-                                        </td>
-                                        <td>
-                                            <select id="Relation1" class="form-control" name="relation9">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <!-- Row of Table -->
-                                    <tr>
-                                        <td>
-                                            <input autocomplete="off" class="form-control" type="text" id="NameOftheApplicant10" name="applicant10" placeholder="Name of the Applicant 10">
-                                        </td>
-                                        <td>
-                                            <select id="Relation10" class="form-control" name="relation10">
-                                                <option value=""></option>
-                                                <option value="Father">Father</option>
-                                                <option value="Mother">Mother</option>
-                                                <option value="Wife">Wife</option>
-                                                <option value="Son">Son</option>
-                                                <option value="Daughter">Daughter</option>
-                                                <option value="Father-in-law">Father-in-law</option>
-                                                <option value="Mother-in-law">Mother-in-law</option>
-                                            </select>
-                                        </td>
-                                    </tr>
+
+                                <table id="applicantTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Name:</th>
+                                            <th>Relation:</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="applicants">
+                                        <!-- Hardcoded SELF row (not editable) -->
+                                        <tr>
+                                            <td>
+                                                <input class="form-control" type="text" name="applicant_name[]" value="<?php echo htmlspecialchars($namewinitials); ?>" id="input2" readonly>
+                                            </td>
+                                            <td>
+                                                <select name="relation[]" class="form-control">
+                                                    <option value="Self" selected>Self</option>
+                                                </select>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+
+                                        <?php
+                                        // Move cursor back to first record
+                                        mysqli_data_seek($result2, 0);
+
+                                        while ($row2 = mysqli_fetch_assoc($result2)) {
+                                            $applicant_name = htmlspecialchars($row2['applicant_name']);
+                                            $relation = $row2['relation'];
+
+                                            // Skip "Self" from being duplicated in the loop
+                                            if ($relation == 'Self') {
+                                                continue;
+                                            }
+
+                                            echo "<tr>";
+                                            echo "<td><input class='form-control' type='text' name='applicant_name[]' value=\"$applicant_name\"></td>";
+                                            echo "<td><select name='relation[]' class='form-control'>";
+
+                                            $marriedOptions = ["Wife", "Son", "Daughter", "Mother", "Father", "Mother-in-law", "Father-in-law"];
+                                            $singleOptions = ["Mother", "Father", "Sister", "Brother"];
+                                            $divorcedOptions = ["Son", "Daughter", "Mother", "Father"];
+
+                                            $allOptions = array_unique(array_merge($marriedOptions, $singleOptions, $divorcedOptions));
+                                            if ($marital == 'Married') {
+                                                $options = $marriedOptions;
+                                            } elseif ($marital == 'Divorced') {
+                                                $options = $divorcedOptions;
+                                            } else {
+                                                $options = $singleOptions;
+                                            }
+                                            
+                                            foreach ($options as $opt) {
+                                                $sel = ($relation == $opt) ? "selected" : "";
+                                                echo "<option value=\"$opt\" $sel>$opt</option>";
+                                            }
+                                            echo "</select></td>";
+                                            echo '<td class="text-center"><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">Delete</button></td>';
+                                            echo "</tr>";
+                                        }
+                                        ?>
+                                    </tbody>
+
 
                                 </table>
-                                <table>
-                                    <div class="form-group">
-                                        <tr>
+                                <button class="form-control bg-info w-50" type="button" onclick="addApplicant()">Add More Applicant</button>
 
-                                            <td style="width:200px;padding:5px">
-                                                <label class="pr-3">Job Type</label>
-                                            </td>
-                                            <td style="width:500px;padding:5px">
-                                                <select name="JobType" id="JobType" class="form-select" onchange="updateTextbox()" required>
+                                <script>
+                                    function updateApplicantsByMaritalStatus() {
+                                        let applicants = document.getElementById('applicants');
 
-                                                    <option value="JobOrder" <?php if ((substr($JobCodeNo, 0, 2)) == "JO") {
-                                                                                    echo "selected";
-                                                                                } ?>>Job Order</option>
-                                                    <option value="WorkOrder" <?php if ((substr($JobCodeNo, 0, 2)) == "WO") {
-                                                                                    echo "selected";
-                                                                                } ?>>Work Order</option>
+                                        // Keep only the first row (Self), delete others
+                                        while (applicants.rows.length > 1) {
+                                            applicants.deleteRow(1);
+                                        }
+                                    }
 
-                                            </td>
+                                    function generateRelationDropdown(maritalStatus) {
+                                        if (maritalStatus === "Married") {
+                                            return `
+            <option value="Wife">Wife</option>
+            <option value="Son">Son</option>
+            <option value="Daughter">Daughter</option>
+            <option value="Mother">Mother</option>
+            <option value="Father">Father</option>
+            <option value="Mother-in-law">Mother-in-law</option>
+            <option value="Father-in-law">Father-in-law</option>
+        `;
+                                        } else if (maritalStatus === "Divorced") {
+                                            return `
+            <option value="Son">Son</option>
+            <option value="Daughter">Daughter</option>
+            <option value="Mother">Mother</option>
+            <option value="Father">Father</option>
+        `;
+                                        } else {
+                                            return `
+            <option value="Mother">Mother</option>
+            <option value="Father">Father</option>
+            <option value="Sister">Sister</option>
+            <option value="Brother">Brother</option>
+        `;
+                                        }
+                                    }
 
-                                        </tr>
-                                        <!-- Row of input fields -->
-                                        <tr>
+                                    function addApplicant() {
+                                        let container = document.getElementById('applicants');
+                                        let marital = document.getElementById('MaritalStatus').value;
+                                        let newRow = document.createElement('tr');
 
-                                            <td style="width:200px;padding:5px">
-                                                <label class="pr-3">Job code No</label>
-                                            </td>
-                                            <td style="width:500px;padding:5px">
-                                                <input type="text" name="JobCodeNo" class="form-control" id="JobCodeNo"
-                                                    value="<?php echo $JobCodeNo; ?>" readonly required>
-                                            </td>
+                                        newRow.innerHTML = `
+        <td><input type="text" class="form-control" name="applicant_name[]"></td>
+        <td>
+            <select name="relation[]" class="form-control">
+                ${generateRelationDropdown(marital)}
+            </select>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">Delete</button>
+        </td>
+    `;
 
-                                        </tr>
+                                        container.appendChild(newRow);
+                                    }
 
-                                        <!-- Row of input fields -->
-                                        <tr>
+                                    function deleteRow(button) {
+                                        const row = button.closest('tr');
+                                        const input = row.querySelector('input[name="applicant_name[]"]');
+                                        const name = input.value.trim();
 
-                                            <td style="width:200px;padding:5px">
-                                                <label class="pr-3">Job Issuing Division</label>
-                                            </td>
-                                            <td style="width:500px;padding:5px">
-                                                <select name="JobIssuingDivision" id="dept" onchange='divSelect()' class="form-select"
-                                                    required>
+                                        // Create a hidden input to store deleted name
+                                        const hidden = document.createElement('input');
+                                        hidden.type = 'hidden';
+                                        hidden.name = 'deleted_applicants[]';
+                                        hidden.value = name;
+                                        document.querySelector('form').appendChild(hidden);
 
-                                                    <?php if ($_SESSION['workplace'] == "ACF") {
-                                                        echo "<option value='ACF'>ACF</option>";
-                                                    }
-                                                    if ($_SESSION['workplace'] == "CCF") {
-                                                        echo "<option value='CCF'>CCF</option>";
-                                                    }
-                                                    if ($_SESSION['workplace'] == "DR") {
-                                                        echo "<option value='DR'>DR</option>";
-                                                    }
-                                                    if ($_SESSION['workplace'] == "Flexible") {
-                                                        echo "<option value='Flexible'>Flexible</option>";
-                                                    }
-                                                    if ($_SESSION['workplace'] == "Aluminium Rodmill") {
-                                                        echo "<option value='Aluminium Rodmill'>Aluminium Rodmill</option>";
-                                                    }
-                                                    if ($_SESSION['workplace'] == "Ceylon Copper") {
-                                                        echo "<option value='Ceylon Copper'>Ceylon Copper</option>";
-                                                    }
-                                                    if ($_SESSION['workplace'] == "Bail Room") {
-                                                        echo "<option value='Bail Room'>Bail Room</option>";
-                                                    }
-                                                    if ($_SESSION['workplace'] == "Drum Yard") {
-                                                        echo "<option value='Drum Yard'>Drum Yard</option>";
-                                                    }
-                                                    if ($_SESSION['workplace'] == "Carpentry") {
-                                                        echo "<option value='Carpentry'>Carpentry</option>";
-                                                    }
-                                                    ?>
-                                                    <!-- <option value="ACF" <?php if ($JobIssuingDivision == "ACF") {
-                                                                                    echo "selected";
-                                                                                } ?>>ACF</option>>ACF</option>
-                                    <option value="CCF" <?php if ($JobIssuingDivision == "CCF") {
-                                                            echo "selected";
-                                                        } ?>>CCF</option>
-                                    <option value="DR" <?php if ($JobIssuingDivision == "DR") {
-                                                            echo "selected";
-                                                        } ?>>DR</option>
-                                    <option value="Flexible" <?php if ($JobIssuingDivision == "Flexible") {
-                                                                    echo "selected";
-                                                                } ?>>Flexible</option>
-                                    <option value="Aluminium Rodmill" <?php if ($JobIssuingDivision == "Aluminium Rodmill") {
-                                                                            echo "selected";
-                                                                        } ?>>Aluminium Rodmill</option>
-                                    <option value="Ceylon Copper" <?php if ($JobIssuingDivision == "Ceylon Copper") {
-                                                                        echo "selected";
-                                                                    } ?>>Ceylon Copper</option> -->
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <!-- Row of input fields -->
-                                        <tr>
-                                            <?php echo $MachineName; ?>
-                                            <td style="width:200px;padding:5px">
-                                                <label class="pr-3">Name of the Machine</label>
-                                            </td>
-                                            <td style="width:500px;padding:5px">
+                                        // Remove row from UI
+                                        row.remove();
+                                    }
+                                </script>
 
-                                                <select id='division' class="form-select" name="MachineName" required>
-                                                    <?php
-                                                    $workplace = $_SESSION['workplace'];
-                                                    if ($workplace == 'ACF') {
-                                                        $Factory = 'acfmachines';
-                                                    }
-                                                    if ($workplace == 'CCF') {
-                                                        $Factory = 'ccfmachines';
-                                                    }
-                                                    if ($workplace == 'DR') {
-                                                        $Factory = 'drmachines';
-                                                    }
-                                                    if ($workplace == 'Flexible') {
-                                                        $Factory = 'flexiblemachines';
-                                                    }
-                                                    if ($workplace == 'Ceylon Copper') {
-                                                        $Factory = 'ceyloncoppermachines';
-                                                    }
-                                                    if ($workplace == 'Aluminium Rodmill') {
-                                                        $Factory = 'aluminiumrodmillmachines';
-                                                    }
-                                                    if ($workplace == 'Drum Yard') {
-                                                        $Factory = 'drumyardmachines';
-                                                    }
+                                <script>
+                                    document.querySelector('form').addEventListener('submit', function(e) {
+                                        const names = document.querySelectorAll('input[name="applicant_name[]"]');
+                                        const relations = document.querySelectorAll('select[name="relation[]"]');
 
-                                                    if ($workplace == 'Bail Room') {
-                                                        $Factory = 'bailmachines';
-                                                    }
-                                                    if ($workplace == 'Carpentry') {
-                                                        $Factory = 'carpentrymachines';
-                                                    }
+                                        let relationCount = {};
+                                        const allowed = {
 
-                                                    $query = "SELECT * FROM $Factory";
-                                                    $result = $con->query($query);
-                                                    echo $row['MachineName'];
-                                                    if ($result->num_rows > 0) {
-                                                        while ($row = $result->fetch_assoc()) { ?>
+                                            "Wife": 1,
+                                            "Father": 1,
+                                            "Mother": 1,
+                                            "Father-in-law": 1,
+                                            "Mother-in-law": 1,
+                                            "Son": Infinity,
+                                            "Daughter": Infinity,
+                                            "Brother": Infinity,
+                                            "Sister": Infinity
+                                        };
 
-                                                            <option value="<?php echo $row['MachineName']; ?> " <?php if ($row['MachineName'] === $MachineName) {
-                                                                                                                    echo 'selected';
-                                                                                                                } ?>>
-                                                                <?php echo $row['MachineName']; ?></option>
+                                        let errors = [];
 
-                                                    <?php }
-                                                    } else {
-                                                        echo '<option value="">No data available</option>';
-                                                    }
-                                                    ?>
+                                        for (let i = 0; i < names.length; i++) {
+                                            const name = names[i].value.trim();
+                                            const relation = relations[i].value;
 
-                                                    <!-- <option value="<?php $MachineName ?>" <?php if ($MachineName != null) {
-                                                                                                    echo "selected";
-                                                                                                } ?>tion> -->
+                                            // Check empty name
+                                            if (name === '') {
+                                                errors.push(`Applicant name cannot be empty in row ${i + 1}`);
+                                            }
 
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <!-- Row of input fields -->
-                                        <tr>
+                                            // Count relation
+                                            relationCount[relation] = (relationCount[relation] || 0) + 1;
 
-                                            <td style="width:200px;padding:5px">
-                                                <label class="pr-3">Priority</label>
-                                            </td>
-                                            <td style="width:500px;padding:5px">
-                                                <select name="priority" id="dept" class="form-select" required
-                                                    placeholder="Choose Priority">
+                                            // Enforce limit
+                                            if (relationCount[relation] > allowed[relation]) {
+                                                errors.push(`Only ${allowed[relation]} '${relation}' allowed.`);
+                                            }
+                                        }
 
-                                                    <option value="Low" <?php if ($priority == "Low") {
-                                                                            echo "selected";
-                                                                        } ?>>Low</option>
-                                                    <option value="High" <?php if ($priority == "High") {
-                                                                                echo "selected";
-                                                                            } ?>>High</option>
-                                                    <option value="Critical" <?php if ($priority == "Critical") {
-                                                                                    echo "selected";
-                                                                                } ?>>
-                                                        Critical</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <!-- Row of input fields -->
-                                        <tr>
-
-                                            <td style="width:200px;padding:5px">
-                                                <label class="pr-3">Report to</label>
-                                            </td>
-                                            <td style="width:500px;padding:5px">
-                                                <select name="ReportTo" class="form-select" required placeholder="Report To">
-
-                                                    <option value="Electrical" <?php if ($ReportTo == "Electrical") {
-                                                                                    echo "selected";
-                                                                                } ?>>
-                                                        Electrical</option>
-                                                    <option value="Mechanical" <?php if ($ReportTo == "Mechanical") {
-                                                                                    echo "selected";
-                                                                                } ?>>
-                                                        Mechanical</option>
-                                                    <option value="Both" <?php if ($ReportTo == "Both") {
-                                                                                echo "selected";
-                                                                            } ?>>Both</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <!-- Row of input fields -->
-                                        <tr>
-
-                                            <td style="width:200px;padding:5px">
-                                                <label class="pr-3">Breif Description</label>
-                                            </td>
-                                            <td style="width:500px;padding:5px">
-                                                <textarea name="BriefDescription" class="form-control" value="" rows="3"
-                                                    required><?php echo $BriefDescription; ?></textarea>
-                                            </td>
-
-                                        </tr>
-                                    </div>
+                                        if (errors.length > 0) {
+                                            e.preventDefault(); // stop form from submitting
+                                            alert(errors.join('\n'));
+                                        }
+                                    });
+                                </script>
+                                <!-- <tr>
+                            <td class="py-3">
+                                 <label for="Mobile Phone">Mobile Phone</label>
+                            </td>
+                            <td class="px-3">
+                                <input class="form-control" type="text" id="Relation10" name="Relation1" placeholder="Relation to Member">
+                            </td>
+                        </tr> -->
                     </div>
-                </table>
-                <button type="submit" class="btn btn-success mt-3" name="update"
-                    onclick="return confirm('Are you sure?')">Update</button>
-                <button type="submit" class="btn btn-warning mt-3" name="delete"
-                    onclick="return confirm('Are you sure?')">Delete</button>
-                <button type="back" class="btn btn-danger mt-3" name="back"><a href="\MaintananceJobCard\PUser\indexPUser.php"
-                        style="text-decoration:none;color:white">Back to Main</a></button>
-            </form>
         </div>
+        </table>
+        <button type="submit" class="btn btn-primary mt-3" name="submit">Submit</button>
+        <button type="back" class="btn btn-danger mt-3" name="back"><a href="..\admin\indexAdmin.php"
+                style="text-decoration:none;color:white">Back to Main</a></button>
+        </form>
+    </div>
     </div>
 
 

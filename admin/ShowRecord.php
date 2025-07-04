@@ -25,7 +25,10 @@ $raddress = $row['raddress'];
 $nic = $row['nic'];
 $dob = $row['dob'];
 $mobile = $row['mobile'];
-
+$rd = $row['rd'];
+$dop = $row['dop'];
+$mobile = $row['mobile'];
+$marital = $row['marital'];
 // $gen = explode(",",$gender);
 // $lang = explode(",",$datas);
 // $pl = explode(",",$place);
@@ -202,6 +205,33 @@ if (isset($_POST['delete'])) {
                     <!-- Table row -->
                     <tr>
                         <td>
+                            Marital Status
+                        </td>
+                        <td>
+                            <?php echo $marital; ?>
+                        </td>
+                    </tr>
+                    <!-- Table row -->
+                    <tr>
+                        <td>
+                            Recruitment Date
+                        </td>
+                        <td>
+                            <?php echo $rd; ?>
+                        </td>
+                    </tr>
+                    <!-- Table row -->
+                    <tr>
+                        <td>
+                            Date of Permanant
+                        </td>
+                        <td>
+                            <?php echo $dop; ?>
+                        </td>
+                    </tr>
+                    <!-- Table row -->
+                    <tr>
+                        <td>
                             Mobile
                         </td>
                         <td>
@@ -223,12 +253,13 @@ if (isset($_POST['delete'])) {
                                 </thead>
                                 <tbody>
                                     <?php
-                                    for ($i = 1; $i <= 10; $i++) {
-                                        $applicant = ${"applicant$i"};
-                                        $relation = ${"relation$i"};
-                                        if (!empty($applicant) || !empty($relation)) {
-                                            echo "<tr><td>$applicant</td><td>$relation</td></tr>";
-                                        }
+                                    $sql_applicants = "SELECT applicant_name, relation FROM applicants WHERE member_id = '$idu'";
+                                    $result_applicants = mysqli_query($con, $sql_applicants);
+
+                                    while ($row_app = mysqli_fetch_assoc($result_applicants)) {
+                                        $name = htmlspecialchars($row_app['applicant_name']);
+                                        $relation = htmlspecialchars($row_app['relation']);
+                                        echo "<tr><td>$name</td><td>$relation</td></tr>";
                                     }
                                     ?>
                                 </tbody>
@@ -244,11 +275,11 @@ if (isset($_POST['delete'])) {
                     onclick="return confirm('Are you sure?')">Finish & send for Approval</button> -->
                 <!-- <button type="submit" class="btn btn-warning mt-3" name="delete"
             onclick="return confirm('Are you sure?')">Transfer</button> -->
-               
-       <?php echo "<button type='submit' class='btn btn-success mt-3 mx-2'><a href='..\admin\EditRecord.php?updateid=$id' style='text-decoration:none;color:black'>Edit Record</button>";?>
-       <button type="submit" onclick="return confirm('Are you sure?')" class="btn btn-warning mt-3 mx-2" name="delete">Delete Record</button>
-       <button type="button" class="btn btn-info mt-3 mx-2"><a href="..\admin\BrowseEPFNo.php" style="text-decoration:none;color:black">Back to Search</a></button>
-        <button type="back" class="btn btn-danger mt-3 mx-2" name="back"><a href="..\admin\indexAdmin.php" style="text-decoration:none;color:white">Back to Main</a></button>
+
+                <?php echo "<button type='submit' class='btn btn-success mt-3 mx-2'><a href='..\admin\EditRecord.php?updateid=$id' style='text-decoration:none;color:black'>Edit Record</button>"; ?>
+                <button type="submit" onclick="return confirm('Are you sure?')" class="btn btn-warning mt-3 mx-2" name="delete">Delete Record</button>
+                <button type="button" class="btn btn-info mt-3 mx-2"><a href="..\admin\BrowseEPFNo.php" style="text-decoration:none;color:black">Back to Search</a></button>
+                <button type="back" class="btn btn-danger mt-3 mx-2" name="back"><a href="..\admin\indexAdmin.php" style="text-decoration:none;color:white">Back to Main</a></button>
             </form>
         </div>
     </div>

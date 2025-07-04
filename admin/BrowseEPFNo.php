@@ -144,7 +144,7 @@ if (!($_SESSION['type'] == 'admin')) {
         <td>$raddress</td>
         <td>$nic</td>
         <td>$dob</td>
-        <td>$marital<td>
+        <td>$marital</td>
              <td>$mobile</td>   
         
       </tr>

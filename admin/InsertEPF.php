@@ -191,6 +191,7 @@ if (isset($_POST['submit'])) {
                                 <select id="MaritalStatus" name="marital" class="form-control px-2 w-100" onchange="updateApplicantsByMaritalStatus()">
                                     <option value="Single">Single</option>
                                     <option value="Married">Married</option>
+                                    <option value="Divorced">Divorced</option>
 
                                 </select>
                             </td>
@@ -286,12 +287,19 @@ if (isset($_POST['submit'])) {
             <option value="Mother-in-law">Mother-in-law</option>
             <option value="Father-in-law">Father-in-law</option>
         `;
-                                        } else {
+                                        } else if(maritalStatus === "Single"){
                                             return `
             <option value="Mother">Mother</option>
             <option value="Father">Father</option>
             <option value="Sister">Sister</option>
             <option value="Brother">Brother</option>
+        `; 
+                                        }else{
+                                            return `
+            <option value="Mother">Mother</option>
+            <option value="Father">Father</option>
+            <option value="Son">Son</option>
+            <option value="Daughter">Daughter</option>
         `;
                                         }
                                     }
