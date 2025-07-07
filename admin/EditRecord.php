@@ -92,6 +92,7 @@ if (isset($_POST['submit'])) {
             $insert_applicant->execute();
         }
     }
+    header('location:.\UpdateSuccess.php');
 }
 ?>
 
@@ -177,58 +178,58 @@ if (isset($_POST['submit'])) {
                             </td>
                             <td class="px-3">
                                 <select id="Departments" class="form-control" name="dept">>
-                                    <option value="ACF" <?php if ($dept = 'ACF') {
+                                    <option value="ACF" <?php if ($dept == 'ACF') {
                                                             echo 'selected';
                                                         } ?>>ACF</option>
-                                    <option value="CCF" <?php if ($dept = 'CCF') {
+                                    <option value="CCF" <?php if ($dept == 'CCF') {
                                                             echo 'selected';
                                                         } ?>>CCF</option>
-                                    <option value="DRF" <?php if ($dept = 'DRF') {
+                                    <option value="DRF" <?php if ($dept == 'DRF') {
                                                             echo 'selected';
                                                         } ?>>DRF</option>
-                                    <option value="FCF" <?php if ($dept = 'FCF') {
+                                    <option value="FCF" <?php if ($dept == 'FCF') {
                                                             echo 'selected';
                                                         } ?>>FCF</option>
-                                    <option value="Electrical" <?php if ($dept = 'Electrical') {
+                                    <option value="Electrical" <?php if ($dept == 'Electrical') {
                                                                     echo 'selected';
                                                                 } ?>>Electrical</option>
-                                    <option value="Maintenance" <?php if ($dept = 'Maintenance') {
+                                    <option value="Maintenance" <?php if ($dept == 'Maintenance') {
                                                                     echo 'selected';
                                                                 } ?>>Maintenance</option>
-                                    <option value="Rodmill" <?php if ($dept = 'Rodmill') {
+                                    <option value="Rodmill" <?php if ($dept == 'Rodmill') {
                                                                 echo 'selected';
                                                             } ?>>Rodmill</option>
-                                    <option value="Ceylon Copper" <?php if ($dept = 'Ceylon Copper') {
+                                    <option value="Ceylon Copper" <?php if ($dept == 'Ceylon Copper') {
                                                                         echo 'selected';
                                                                     } ?>>Ceylon Copper</option>
-                                    <option value="Accounts and Stores" <?php if ($dept = 'Accounts and Stores') {
+                                    <option value="Accounts and Stores" <?php if ($dept == 'Accounts and Stores') {
                                                                             echo 'selected';
                                                                         } ?>>Accounts and Stores</option>
-                                    <option value="GM Office" <?php if ($dept = 'GM Office') {
+                                    <option value="GM Office" <?php if ($dept == 'GM Office') {
                                                                     echo 'selected';
                                                                 } ?>>GM Office</option>
-                                    <option value="IT" <?php if ($dept = 'IT') {
+                                    <option value="IT" <?php if ($dept == 'IT') {
                                                             echo 'selected';
                                                         } ?>>IT</option>
-                                    <option value="Die shop" <?php if ($dept = 'Die shop') {
+                                    <option value="Die shop" <?php if ($dept == 'Die shop') {
                                                                     echo 'selected';
                                                                 } ?>>Die shop</option>
-                                    <option value="Civil" <?php if ($dept = 'Civil') {
+                                    <option value="Civil" <?php if ($dept == 'Civil') {
                                                                 echo 'selected';
                                                             } ?>>Civil</option>
-                                    <option value="Logistics" <?php if ($dept = 'Logistics') {
+                                    <option value="Logistics" <?php if ($dept == 'Logistics') {
                                                                     echo 'selected';
                                                                 } ?>>Logistics</option>
-                                    <option value="Drum Yard" <?php if ($dept = 'Drum Yard') {
+                                    <option value="Drum Yard" <?php if ($dept == 'Drum Yard') {
                                                                     echo 'selected';
                                                                 } ?>>Drum Yard</option>
-                                    <option value="HR" <?php if ($dept = 'HR') {
+                                    <option value="HR" <?php if ($dept == 'HR') {
                                                             echo 'selected';
                                                         } ?>>HR</option>
-                                    <option value="TSD" <?php if ($dept = 'TSD') {
+                                    <option value="TSD" <?php if ($dept == 'TSD') {
                                                             echo 'selected';
                                                         } ?>>TSD</option>
-                                    <option value="QAD" <?php if ($dept = 'QAD') {
+                                    <option value="QAD" <?php if ($dept == 'QAD') {
                                                             echo 'selected';
                                                         } ?>>QAD</option>
 
@@ -271,13 +272,13 @@ if (isset($_POST['submit'])) {
                             </td>
                             <td class="px-3" style="width: 500px;">
                                 <select id="MaritalStatus" name="marital" class="form-control px-2 w-100" onchange="updateApplicantsByMaritalStatus()">
-                                    <option value="Single" value="Single" <?php if ($marital = 'Single') {
+                                    <option value="Single" value="Single" <?php if ($marital == 'Single') {
                                                                                 echo 'selected';
                                                                             } ?>>Single</option>
-                                    <option value="Married" <?php if ($marital = 'Married') {
+                                    <option value="Married" <?php if ($marital == 'Married') {
                                                                 echo 'selected';
                                                             } ?>>Married</option>
-                                    <option value="Divorced" <?php if ($marital = 'Divorced') {
+                                    <option value="Divorced" <?php if ($marital == 'Divorced') {
                                                                     echo 'selected';
                                                                 } ?>>Divorced</option>
                                 </select>
@@ -310,7 +311,7 @@ if (isset($_POST['submit'])) {
                                     const rd = new Date(recruitmentDate);
                                     const dop = new Date(permanentDate);
 
-                                    if (rd >= dop) {
+                                    if (rd > dop) {
                                         event.preventDefault(); // Stop form from submitting
                                         alert("Recruitment Date should be earlier than Date of Permanent. Fix it before submitting!"); // You can make this fancier with a modal or inline error
                                     }

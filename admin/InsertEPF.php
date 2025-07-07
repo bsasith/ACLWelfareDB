@@ -223,7 +223,7 @@ if (isset($_POST['submit'])) {
                                     const rd = new Date(recruitmentDate);
                                     const dop = new Date(permanentDate);
 
-                                    if (rd >= dop) {
+                                    if (rd > dop) {
                                         event.preventDefault(); // Stop form from submitting
                                         alert("Recruitment Date should be earlier than Date of Permanent. Fix it before submitting!"); // You can make this fancier with a modal or inline error
                                     }

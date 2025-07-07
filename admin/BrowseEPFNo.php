@@ -68,6 +68,7 @@ if (!($_SESSION['type'] == 'admin')) {
                         <th scope="col">DOB</th>
                         <th scope="col">Marital<br>Status</th>
                         <th scope="col">Mobile</th>
+                        <th scope="col">Grants</th>
                         <!-- <th scope="col">Operations</th> -->
 
 
@@ -146,7 +147,7 @@ if (!($_SESSION['type'] == 'admin')) {
         <td>$dob</td>
         <td>$marital</td>
              <td>$mobile</td>   
-        
+        <td><a href='..\admin\AddDeleteGrants.php?updateid=$id' class='btn btn-success'>Grants</a></td>   
       </tr>
       
       ";
