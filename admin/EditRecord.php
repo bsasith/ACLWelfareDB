@@ -1,6 +1,7 @@
 <?php
 include '../connect.php';
 include '../session.php';
+include '../log_activity.php';
 date_default_timezone_set('Asia/Colombo');
 $date = date("Y-m-d G:i:s");
 if (!($_SESSION['type'] == 'admin')) {
@@ -92,7 +93,9 @@ if (isset($_POST['submit'])) {
             $insert_applicant->execute();
         }
     }
+    logActivity($con, $_SESSION['userID'], $_SESSION['username'], "Edited EPF record of member ID $idu");
     header('location:.\UpdateSuccess.php');
+
 }
 ?>
 

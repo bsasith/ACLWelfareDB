@@ -3,8 +3,8 @@ include '../connect.php';
 include '../session.php';
 include '../log_activity.php';
 
-if (!($_SESSION['type'] == 'admin')) {
-    header('location:..\index.php');
+if (!($_SESSION['type'] == 'user')) {
+    header('location:..\user\indexNonAdmin.php');
 }
 
 ?>
@@ -39,7 +39,7 @@ if (!($_SESSION['type'] == 'admin')) {
 
 <body>
     <div class="topbar">
-        <h1 class="topbar-text">Welcome <?php echo $_SESSION['username'] ?> User</h1>
+        <h1 class="topbar-text">Welcome Non-Admin User</h1>
 
         <a href="..\logout.php">
             <h1 class="topbar-logout">Logout &nbsp</h1>
@@ -137,7 +137,7 @@ if (!($_SESSION['type'] == 'admin')) {
                             "
 
 
-     <tr class='clickable-row' data-href='..\admin\ShowRecord.php?updateid=$id'>
+     <tr class='clickable-row' data-href='..\user\ShowRecord.php?updateid=$id'>
         
         <td>$fname</td>
         <td>$lname</td>
@@ -148,7 +148,7 @@ if (!($_SESSION['type'] == 'admin')) {
         <td>$dob</td>
         <td>$marital</td>
              <td>$mobile</td>   
-        <td><a href='..\admin\AddDeleteGrants.php?updateid=$id' class='btn btn-success'>Grants</a></td>   
+          
       </tr>
       
       ";
@@ -160,7 +160,7 @@ if (!($_SESSION['type'] == 'admin')) {
                 </tbody>
             </table>
             <button type="back" class="btn btn-danger mt-3" name="back"><a
-                    href="..\admin\indexAdmin.php" style="text-decoration:none;color:white">Back to
+                    href="..\user\indexNonAdmin.php" style="text-decoration:none;color:white">Back to
                     Main</a></button>
         </div>
     </div>

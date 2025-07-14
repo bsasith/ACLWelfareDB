@@ -1,6 +1,7 @@
 <?php
 include '../connect.php';
 include '../session.php';
+include '../log_activity.php';
 
 if (!($_SESSION['type'] == 'admin')) {
     header('location:..\index.php');
@@ -29,6 +30,7 @@ $rd = $row['rd'];
 $dop = $row['dop'];
 $mobile = $row['mobile'];
 $marital = $row['marital'];
+logActivity($con, $_SESSION['userID'], $_SESSION['username'], "Viewed EPF record of member ID $idu");
 // $gen = explode(",",$gender);
 // $lang = explode(",",$datas);
 // $pl = explode(",",$place);
@@ -78,6 +80,7 @@ if (isset($_POST['delete'])) {
     $sql = "delete  from `member_info` where id='$idu'";
     $result = mysqli_query($con, $sql);
     $_SESSION['DeleteJobSucess'] = true;
+    logActivity($con, $_SESSION['userID'], $_SESSION['username'], "Deleted EPF record of member ID $idu");
     header('location:..\admin\DeleteSuccess.php');
 }
 

@@ -3,7 +3,7 @@ include '../connect.php';
 include '../session.php';
 include '../log_activity.php';
 
-if (!($_SESSION['type'] == 'admin')) {
+if (!($_SESSION['type'] == 'user')) {
     header('location:..\index.php');
 }
 
@@ -30,7 +30,7 @@ if (!($_SESSION['type'] == 'admin')) {
 
 <body>
     <div class="topbar">
-        <h1 class="topbar-text">Welcome Admin User</h1>
+        <h1 class="topbar-text">Welcome Non-Admin User</h1>
 
         <a href="..\logout.php">
             <h1 class="topbar-logout">Logout &nbsp</h1>
@@ -45,13 +45,13 @@ if (!($_SESSION['type'] == 'admin')) {
         <!-- first line of boxes -->
         <div class="grid-container ">
 
-            <a href="..\admin\InsertEPF.php" style="text-decoration: none;">
+            <!-- <a href="..\admin\InsertEPF.php" style="text-decoration: none;">
                     <div class="grid-item" id="box3">
                         <h1 class="box-text" style="color: black;">Insert New a <br>Welfare Person</h1>
                     </div>
-                </a>
+                </a> -->
 
-            <a href="..\admin\BrowseEPFNo.php" style="text-decoration: none;">
+            <a href="..\user\BrowseEPFNo.php" style="text-decoration: none;">
                 <div class="grid-item" id="box1">
                     <h1 class="box-text" style="color: black">Search <br> Welfare Persons</h1>
                 </div>

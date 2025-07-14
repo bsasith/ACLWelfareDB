@@ -1,6 +1,7 @@
 <?php
 include '../connect.php';
 include '../session.php';
+include '../log_activity.php';
 
 date_default_timezone_set('Asia/Colombo');
 $date = date("Y-m-d G:i:s");
@@ -33,7 +34,7 @@ if (isset($_POST['submit'])) {
     $relations = $_POST['relation'];
 
     $insert_applicant = $con->prepare("INSERT INTO applicants (member_id, applicant_name, relation) VALUES (?, ?, ?)");
-
+logActivity($con, $_SESSION['userID'], $_SESSION['username'], "Insert EPF record of member ID $member_id");
     for ($i = 0; $i < count($applicant_names); $i++) {
         $name = $applicant_names[$i];
         $relation = $relations[$i];

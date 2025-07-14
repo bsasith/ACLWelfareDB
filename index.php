@@ -8,18 +8,16 @@ session_start();
 
 include 'connect.php';
 
+
 if (isset($_SESSION['userID'])) {
     switch ($_SESSION['type']) {
         case 'admin':
             header('Location: ./admin/indexAdmin.php');
             exit();
         case 'user':
-            header('Location: ./PUser/indexPUser.php');
+            header('Location: ./user/indexNonAdmin.php');
             exit();
-        case 'euser':
-        case 'muser':
-            header('Location: ./EMUser/indexEMUser.php');
-            exit();
+       
     }
 }
 
@@ -48,12 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                     header('Location: ./admin/indexAdmin.php');
                     break;
                 case 'user':
-                    header('Location: ./PUser/indexPUser.php');
+                    header('Location: ./user/indexNonAdmin.php');
                     break;
-                case 'euser':
-                case 'muser':
-                    header('Location: ./EMUser/indexEMUser.php');
-                    break;
+          
             }
             exit();
         }
@@ -105,7 +100,7 @@ $con->close();
         <div class="headingweb">
             <center>
                 <div>
-                    <img src="logo.jpg" style="height:100px; weight:200px" alt="">
+                    <img src="logo.jpg" style="height:100px; width:200px" alt="">
                 </div>
                 <h1>ACL Welfare Society DB</h1>
 

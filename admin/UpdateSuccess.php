@@ -1,6 +1,7 @@
 <?php
 include '../connect.php';
 include '../session.php';
+include '../log_activity.php';
 
 if (!($_SESSION['type'] == 'admin')) {
     header('location:..\index.php');
