@@ -15,8 +15,8 @@ if (!($_SESSION['type'] == 'admin')) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance Job Card</title>
-    <link rel="stylesheet" href="\MaintananceJobCard\styles\indexstyle.css">
+    <title>ACL Welfare DB</title>
+   
 
     <style>
 
@@ -26,6 +26,8 @@ if (!($_SESSION['type'] == 'admin')) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="..\styles\indexstyle.css">
+    <link rel="stylesheet" href="..\styles\SubmitJobstyle.css">
 </head>
 
 <body>
